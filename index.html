@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HPO Phenotype Selector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>HPO Phenotype Selector</h1>
+
+    <div class="container">
+        <!-- Left Panel: Search and Results -->
+        <div class="panel search-panel">
+            <h2>Search Phenotypes</h2>
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Enter phenotype (e.g., tall stature)">
+                <button id="search-button">Search</button>
+                <span id="search-indicator" class="loading-indicator"></span> <!-- For loading feedback -->
+            </div>
+
+            <div id="results-area">
+                <p class="placeholder-text">Search results will appear here.</p>
+                <!-- Search results dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Right Panel: Selected Terms -->
+        <div class="panel selected-panel">
+            <h2>Selected Terms</h2>
+            <div id="selected-list-container">
+                <ul id="selected-list">
+                    <li class="placeholder-text">No terms selected yet.</li>
+                    <!-- Selected terms dynamically added here -->
+                </ul>
+            </div>
+            <button id="download-button" disabled>Download List (CSV)</button>
+        </div>
+    </div>
+
+    <!-- Link to JavaScript file -->
+    <script src="script.js"></script>
+</body>
+</html>
