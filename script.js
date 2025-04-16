@@ -4,16 +4,16 @@ document.addEventListener('DOMContentLoaded', () => {
         'en': {
              'title': "HPO Phenotype Selector", 'search_heading': "Search Phenotypes", 'search_placeholder': "Enter phenotype (e.g., tall stature)", 'search_button': "Search", 'results_placeholder': "Search results will appear here.", 'selected_heading': "Selected Terms", 'selected_placeholder': "No terms selected yet.", 'download_button': "Download List (CSV)", 'error_search_failed': "Search logic error.", 'error_min_chars': "Please enter at least 2 characters to search.", 'error_no_results': "No matching terms found.", 'add_tooltip_prefix': "Click to add", 'remove_tooltip_prefix': "Remove",
              'loading_wait': "Processing file, please wait...",
-             'loading_error': "Error reading or parsing file. Ensure it's valid HPO JSON.",
+             'loading_error': "Error loading or processing HPO data.", // Generic error
              'loading_success': "HPO data loaded successfully.",
-             'prompt_load': 'Please select the hp.json or hp-intl.json file you downloaded.'
+             'loading_initial': 'Loading HPO data, please wait...' // Initial loading message
           },
         'de': {
              'title': "HPO Phänotyp-Auswahl", 'search_heading': "Phänotypen suchen", 'search_placeholder': "Phänotyp eingeben (z.B. Großwuchs)", 'search_button': "Suchen", 'results_placeholder': "Suchergebnisse werden hier angezeigt.", 'selected_heading': "Ausgewählte Begriffe", 'selected_placeholder': "Noch keine Begriffe ausgewählt.", 'download_button': "Liste herunterladen (CSV)", 'error_search_failed': "Fehler in der Suchlogik.", 'error_min_chars': "Bitte mindestens 2 Zeichen für die Suche eingeben.", 'error_no_results': "Keine passenden Begriffe gefunden.", 'add_tooltip_prefix': "Klicken zum Hinzufügen von", 'remove_tooltip_prefix': "Entfernen",
-             'loading_wait': "Datei wird verarbeitet, bitte warten...",
-             'loading_error': "Fehler beim Lesen oder Parsen der Datei. Ist es valides HPO-JSON?",
+             'loading_wait': "Daten werden geladen, bitte warten...", // Changed from file processing
+             'loading_error': "Fehler beim Laden oder Verarbeiten der HPO-Daten.",
              'loading_success': "HPO-Daten erfolgreich geladen.",
-             'prompt_load': 'Bitte die heruntergeladene hp.json oder hp-intl.json auswählen.'
+             'loading_initial': 'HPO-Daten werden geladen, bitte warten...'
          },
         'pt': { // Added Portuguese translations
              'title': "Seletor de Fenótipos HPO",
@@ -30,16 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
              'add_tooltip_prefix': "Clicar para adicionar",
              'remove_tooltip_prefix': "Remover",
              'loading_wait': "A processar o ficheiro, por favor aguarde...",
-             'loading_error': "Erro ao ler ou processar o ficheiro. Verifique se é um HPO JSON válido.",
+             'loading_error': "Erro ao carregar ou processar os dados HPO.", // Generic error
              'loading_success': "Dados HPO carregados com sucesso.",
-             'prompt_load': 'Por favor, selecione o ficheiro hp.json ou hp-intl.json que descarregou.'
+             'loading_initial': 'A carregar dados HPO, por favor aguarde...' // Initial loading message
           }
         // Add more languages here
     };
 
-    // --- DOM Elements (Same as before) ---
-    const configArea = document.getElementById('config-area');
-    const hpoFileInput = document.getElementById('hpo-file-input');
+    // --- DOM Elements ---
+    const loadingArea = document.getElementById('loading-area'); // Changed from config-area
     const loadingMessageDiv = document.getElementById('loading-message');
     const mainContentDiv = document.getElementById('main-content');
     const langSelector = document.getElementById('lang-selector');
@@ -58,65 +57,72 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Functions ---
 
-    // processHpoData (Same as before - parses nodes)
-    function processHpoData(jsonData) {
+    // processHpoData (Now expects the pre-processed list)
+    function processHpoData(processedNodes) {
         try {
-            if (!jsonData || !jsonData.graphs || !Array.isArray(jsonData.graphs) || jsonData.graphs.length === 0 || !Array.isArray(jsonData.graphs[0].nodes)) {
-                 throw new Error("Invalid HPO JSON structure.");
+            if (!Array.isArray(processedNodes)) {
+                 throw new Error("Invalid pre-processed HPO data format (expected an array).");
             }
-            hpoNodes = jsonData.graphs[0].nodes.filter(node => node.id && node.lbl && !node.meta?.obsolete);
+            // Data is already filtered by the Python script
+            hpoNodes = processedNodes;
             if (hpoNodes.length === 0) {
-                throw new Error("No valid HPO nodes found.");
+                throw new Error("No valid HPO nodes found in the pre-processed data.");
             }
             isDataLoaded = true;
-            console.log(`Parsed ${hpoNodes.length} non-obsolete HPO nodes.`);
+            console.log(`Loaded ${hpoNodes.length} pre-processed HPO nodes.`);
+
+            // Update UI: Show success, hide loading area, enable controls
             loadingMessageDiv.textContent = uiStrings[currentUiLang]?.loading_success || 'HPO data loaded successfully.';
             loadingMessageDiv.style.color = 'green';
+            // Optionally hide the loading area after success
+            // loadingArea.style.display = 'none';
             mainContentDiv.style.display = 'block';
-            searchInput.disabled = false; searchButton.disabled = false;
-            translateUI(currentUiLang);
+            searchInput.disabled = false;
+            searchButton.disabled = false;
+            translateUI(currentUiLang); // Re-translate in case language changed during load
+
         } catch (error) {
-            console.error("Failed to process HPO JSON:", error);
-            loadingMessageDiv.textContent = `${uiStrings[currentUiLang]?.loading_error || 'Error processing file.'} (${error.message})`;
+            console.error("Failed to process HPO data:", error);
+            loadingMessageDiv.textContent = `${uiStrings[currentUiLang]?.loading_error || 'Error processing data.'} (${error.message})`;
             loadingMessageDiv.style.color = 'red';
-            isDataLoaded = false; hpoNodes = []; mainContentDiv.style.display = 'none';
+            isDataLoaded = false; hpoNodes = [];
+            mainContentDiv.style.display = 'none'; // Keep main content hidden on error
+            searchInput.disabled = true; searchButton.disabled = true;
         }
     }
 
-    // handleFileSelect (Same as before - reads file)
-    function handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (!file) {
-             loadingMessageDiv.textContent = uiStrings[currentUiLang]?.prompt_load || 'Please select the HPO JSON file.';
-             loadingMessageDiv.style.color = '#555'; return;
-        }
-        console.log(`File selected: ${file.name}`);
-        isDataLoaded = false; hpoNodes = []; mainContentDiv.style.display = 'none';
-        searchInput.disabled = true; searchButton.disabled = true;
-        loadingMessageDiv.textContent = uiStrings[currentUiLang]?.loading_wait || 'Processing file...';
+    // Load HPO data from the server
+    async function loadHpoDataFromServer(url) {
+        console.log(`Fetching HPO data from: ${url}`);
+        // Ensure loading message reflects the current state and language
+        loadingMessageDiv.textContent = uiStrings[currentUiLang]?.loading_initial || 'Loading HPO data...';
         loadingMessageDiv.style.color = '#555';
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const jsonData = JSON.parse(e.target.result);
-                processHpoData(jsonData);
-            } catch (parseError) {
-                console.error("Error parsing JSON:", parseError);
-                loadingMessageDiv.textContent = `${uiStrings[currentUiLang]?.loading_error || 'Error parsing file.'} (Invalid JSON?)`;
-                loadingMessageDiv.style.color = 'red';
-                isDataLoaded = false; hpoNodes = []; mainContentDiv.style.display = 'none';
+        loadingArea.style.display = 'block'; // Make sure loading area is visible
+        mainContentDiv.style.display = 'none'; // Keep main content hidden
+        searchInput.disabled = true; searchButton.disabled = true; // Keep controls disabled
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                // Throw an error with HTTP status to be caught below
+                throw new Error(`HTTP error! Status: ${response.status} ${response.statusText}`);
             }
-        };
-        reader.onerror = function(e) {
-            console.error("Error reading file:", e);
-            loadingMessageDiv.textContent = `${uiStrings[currentUiLang]?.loading_error || 'Error reading file.'} (${reader.error})`;
+            const jsonData = await response.json();
+            processHpoData(jsonData); // Process the fetched data
+
+        } catch (error) {
+            console.error("Failed to load or parse HPO data:", error);
+            // Display a user-friendly error message, including network issues
+            loadingMessageDiv.textContent = `${uiStrings[currentUiLang]?.loading_error || 'Error loading HPO data.'} (${error.message})`;
             loadingMessageDiv.style.color = 'red';
-            isDataLoaded = false; hpoNodes = []; mainContentDiv.style.display = 'none';
-        };
-        reader.readAsText(file);
+            isDataLoaded = false; hpoNodes = [];
+            mainContentDiv.style.display = 'none'; // Ensure main content remains hidden
+            searchInput.disabled = true; searchButton.disabled = true;
+        }
     }
 
-    // translateUI (Same logic, uses uiStrings)
+
+    // translateUI (Uses uiStrings, updates placeholders)
     function translateUI(lang) {
         const translations = uiStrings[lang] || uiStrings['en']; // Fallback to English
         document.title = translations['title'];
@@ -165,17 +171,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const results = []; const max_results = 50;
         try {
-            for (const node of hpoNodes) {
+            for (const node of hpoNodes) { // Iterate the pre-processed list
                 let matchFound = false;
+                // Access fields directly from the simplified node object
                 if (node.lbl && node.lbl.toLowerCase().includes(query)) { matchFound = true; }
-                if (!matchFound && node.meta?.definition?.val && node.meta.definition.val.toLowerCase().includes(query)) { matchFound = true; }
-                if (!matchFound && node.meta?.synonyms && Array.isArray(node.meta.synonyms)) {
-                    for (const syn of node.meta.synonyms) {
-                        if (syn.val && syn.val.toLowerCase().includes(query)) { matchFound = true; break; }
+                // Check definition (now directly on node)
+                if (!matchFound && node.definition && node.definition.toLowerCase().includes(query)) { matchFound = true; }
+                // Check synonyms (now a simple array of strings)
+                if (!matchFound && node.synonyms && Array.isArray(node.synonyms)) {
+                    for (const syn of node.synonyms) {
+                        if (syn && syn.toLowerCase().includes(query)) { matchFound = true; break; }
                     }
                 }
                 if (matchFound) {
-                    // IMPORTANT: Still using node.lbl as the display name
+                    // Use node.lbl for display name
                     results.push({ id: node.id, name: node.lbl });
                     if (results.length >= max_results) break;
                 }
@@ -272,14 +281,15 @@ document.addEventListener('DOMContentLoaded', () => {
         translateUI(currentUiLang);
     }
 
-    // --- Event Listeners (Same as before) ---
-    hpoFileInput.addEventListener('change', handleFileSelect);
+    // --- Event Listeners ---
+    // Removed: hpoFileInput listener
     searchButton.addEventListener('click', performSearch);
     searchInput.addEventListener('keypress', (event) => { if (event.key === 'Enter') performSearch(); });
     downloadButton.addEventListener('click', downloadCSV);
     langSelector.addEventListener('change', handleLanguageChange);
 
     // --- Initial Setup ---
-    translateUI(currentUiLang); // Translate the initial UI
+    translateUI(currentUiLang); // Translate static elements initially
+    loadHpoDataFromServer('hpo_data.json'); // Start loading data from the server
 
 }); // End DOMContentLoaded
