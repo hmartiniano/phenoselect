@@ -138,9 +138,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if(isDataLoaded){
             renderSearchResults(lastSearchResults || []); // Update tooltips
             renderSelectedList(); // Update tooltips
-        } else {
-             // Make sure the initial prompt is also translated
-             loadingMessageDiv.textContent = translations['prompt_load'] || 'Please select the HPO JSON file.';
+        }
+        // Update loading message if data isn't loaded yet (this replaces the old 'else' logic)
+        if (!isDataLoaded) {
+             loadingMessageDiv.textContent = translations['loading_initial'] || 'Loading HPO data, please wait...';
         }
     }
 
