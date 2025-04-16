@@ -1,1 +1,0 @@
-wget https://purl.obolibrary.org/obo/hp.obo

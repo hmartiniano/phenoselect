@@ -8,38 +8,57 @@
 </head>
 <body>
 
-    <h1>HPO Phenotype Selector</h1>
-
-    <div class="container">
-        <!-- Left Panel: Search and Results -->
-        <div class="panel search-panel">
-            <h2>Search Phenotypes</h2>
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Enter phenotype (e.g., tall stature)">
-                <button id="search-button">Search</button>
-                <span id="search-indicator" class="loading-indicator"></span> <!-- For loading feedback -->
-            </div>
-
-            <div id="results-area">
-                <p class="placeholder-text">Search results will appear here.</p>
-                <!-- Search results dynamically added here -->
-            </div>
-        </div>
-
-        <!-- Right Panel: Selected Terms -->
-        <div class="panel selected-panel">
-            <h2>Selected Terms</h2>
-            <div id="selected-list-container">
-                <ul id="selected-list">
-                    <li class="placeholder-text">No terms selected yet.</li>
-                    <!-- Selected terms dynamically added here -->
-                </ul>
-            </div>
-            <button id="download-button" disabled>Download List (CSV)</button>
+    <!-- Loading / Configuration Area -->
+    <div id="config-area" style="padding: 15px; border-bottom: 1px solid #ccc; margin-bottom: 15px; background-color: #eee;">
+        <label for="hpo-file-input">Load HPO JSON File:</label>
+        <input type="file" id="hpo-file-input" accept=".json">
+        <div id="loading-message" style="margin-top: 10px; font-style: italic; color: #555;">
+            Please select the hp.json or hp-intl.json file you downloaded.
         </div>
     </div>
 
-    <!-- Link to JavaScript file -->
+    <!-- Main content area (hidden initially) -->
+    <div id="main-content" style="display: none;">
+        <!-- Language selector for UI -->
+        <div style="text-align: right; margin-bottom: 10px;">
+             <label for="lang-selector">UI Language:</label>
+             <select id="lang-selector">
+                 <option value="en">English</option>
+                 <option value="de">Deutsch</option>
+                 <option value="pt">Português</option> <!-- Added Portuguese -->
+                 <!-- Add more UI languages here -->
+             </select>
+         </div>
+
+        <h1>HPO Phenotype Selector</h1>
+
+        <div class="container">
+            <!-- Left Panel: Search and Results -->
+            <div class="panel search-panel">
+                <h2 data-translate="search_heading">Search Phenotypes</h2>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Enter phenotype..." data-translate-placeholder="search_placeholder" disabled>
+                    <button id="search-button" data-translate="search_button" disabled>Search</button>
+                    <span id="search-indicator" class="loading-indicator"></span>
+                </div>
+                <div id="results-area">
+                    <p class="placeholder-text" data-translate="results_placeholder">Search results will appear here.</p>
+                </div>
+            </div>
+            <!-- Right Panel: Selected Terms -->
+            <div class="panel selected-panel">
+                <h2 data-translate="selected_heading">Selected Terms</h2>
+                <div id="selected-list-container">
+                    <ul id="selected-list">
+                        <li class="placeholder-text" data-translate="selected_placeholder">No terms selected yet.</li>
+                    </ul>
+                </div>
+                 <button id="download-button" disabled data-translate="download_button">Download List (CSV)</button>
+            </div>
+        </div>
+
+    </div> <!-- End #main-content -->
+
     <script src="script.js"></script>
 </body>
 </html>
