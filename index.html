@@ -23,7 +23,7 @@
              <select id="lang-selector">
                  <option value="en">English</option>
                  <option value="de">Deutsch</option>
-                 <option value="pt">Português</option> <!-- Added Portuguese -->
+                 <option value="pt">Português</option>
                  <!-- Add more UI languages here -->
              </select>
          </div>
@@ -43,7 +43,8 @@
                     <p class="placeholder-text" data-translate="results_placeholder">Search results will appear here.</p>
                 </div>
             </div>
-            <!-- Right Panel: Selected Terms -->
+
+            <!-- Middle Panel: Selected Terms -->
             <div class="panel selected-panel">
                 <h2 data-translate="selected_heading">Selected Terms</h2>
                 <div id="selected-list-container">
@@ -53,7 +54,19 @@
                 </div>
                  <button id="download-button" disabled data-translate="download_button">Download List (CSV)</button>
             </div>
-        </div>
+
+            <!-- Right Panel: Related Terms (NEW) -->
+            <div class="panel related-panel">
+                <h2 data-translate="related_heading">Related Terms</h2>
+                <div id="related-list-container">
+                     <ul id="related-list">
+                         <li class="placeholder-text" data-translate="related_placeholder">Select terms to see related ones.</li>
+                     </ul>
+                </div>
+                 <p class="related-info-text" data-translate="related_info">Click on a related term to add it to your selection.</p>
+            </div>
+
+        </div> <!-- End .container -->
 
     </div> <!-- End #main-content -->
 

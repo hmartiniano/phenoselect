@@ -137,3 +137,83 @@ button:disabled {
         flex-direction: column; /* Stack panels vertically */
     }
 }
+/* ... (previous styles) ... */
+
+.panel {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    flex: 1; /* Allow panels to grow */
+    min-width: 280px; /* Adjusted min-width slightly */
+    display: flex; /* Use flexbox for panel layout */
+    flex-direction: column; /* Stack elements vertically */
+}
+
+#results-area, #selected-list-container, #related-list-container { /* Added related-list-container */
+    height: 300px; /* Fixed height */
+    overflow-y: auto; /* Add scrollbar if content overflows */
+    border: 1px solid #eee;
+    padding: 10px;
+    background-color: #fdfdfd;
+    margin-bottom: 10px; /* Add space below lists before buttons/text */
+    flex-grow: 1; /* Allow list container to take available space */
+}
+
+#selected-list, #related-list { /* Added related-list */
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Style for items in the related list */
+.related-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    font-size: 0.9em; /* Slightly smaller font */
+}
+
+.related-item:hover {
+    background-color: #e9f5ff; /* Light blue hover effect */
+}
+
+.related-item:last-child {
+     border-bottom: none;
+}
+
+.related-item .score {
+    font-size: 0.85em;
+    color: #555;
+    margin-left: 8px;
+}
+
+.related-info-text {
+    font-size: 0.85em;
+    color: #666;
+    text-align: center;
+    margin-top: 5px; /* Space above the info text */
+    padding: 0 5px; /* Padding */
+}
+
+/* Ensure download button is at the bottom */
+.selected-panel button#download-button {
+    margin-top: auto; /* Pushes button to bottom if panel uses flex column */
+}
+
+
+/* ... (rest of the styles like .remove-btn, .placeholder-text, etc.) ... */
+
+/* Media query adjustment if needed */
+@media (max-width: 900px) { /* Adjust breakpoint if panels wrap too early */
+    .container {
+        flex-direction: column; /* Stack panels vertically */
+    }
+    .panel {
+        min-width: 100%; /* Take full width when stacked */
+    }
+     #results-area, #selected-list-container, #related-list-container {
+         height: 200px; /* Reduce height on smaller screens */
+     }
+
+}
