@@ -23,11 +23,6 @@
      border-bottom: none;
  }
 
-/* Align spinner vertically if needed (Bootstrap 5 usually aligns well in input-group-text) */
-#search-indicator {
-    /* vertical-align: middle; */ /* May not be needed */
-}
-
 /* Ensure footer stays below content on short pages */
 body {
     display: flex;
@@ -36,14 +31,34 @@ body {
 }
 
 /* Allow the main content container to grow */
-.container-fluid {
+.main-content-container { /* Use specific class */
     flex: 1;
 }
 
-/* Add some basic cursor indication for list items acting as buttons */
+/* Helper class for card body flex layout */
+.card-body-flex {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Make card body itself take available height within card */
+}
+
+/* Explicitly make list scrollable area grow */
+.list-scrollable.flex-grow-1 {
+    flex-grow: 1;
+}
+
+/* Push button or text at the end of card-body-flex to the bottom */
+.card-body-flex .btn,
+.card-body-flex .info-text-bottom {
+    margin-top: auto;
+}
+/* Adjust margin for the info text if needed */
+.info-text-bottom {
+    margin-bottom: 0;
+}
+
+
+/* Add basic cursor indication for list items acting as buttons */
 .list-group-item-action {
     cursor: pointer;
 }
-
-footer { line-height: 1.2; } /* Adjust footer line height slightly */
-#hpo-version-display { font-weight: bold; margin-left: 5px; } /* Style for version span */
