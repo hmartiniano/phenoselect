@@ -1,87 +1,84 @@
-Okay, here is a `README.md` file for your project based on the provided code.
-
-```markdown
-# HPO Phenotype Selector with Related Terms
+# Phenoselect - HPO Phenotype Selector with Related Terms
 
 This web-based tool allows users to search for Human Phenotype Ontology (HPO) terms, create a list of selected terms, and view other HPO terms that are semantically related to the selected ones. The selected list can be downloaded as a CSV file.
 
-The tool uses a pre-processed HPO data file (`hpo_data.json`) which includes pre-calculated similarity scores between terms to enable fast display of related phenotypes on the client-side.
+The tool uses a pre-processed HPO data file (`hpo_data.json`) which includes pre-calculated similarity scores between terms and the HPO version used for processing, enabling fast display of related phenotypes and version information on the client-side.
 
 ## Features
 
 *   **Search:** Search HPO terms by name, definition, or synonyms.
 *   **Selection:** Add terms from search results to a "Selected Terms" list.
 *   **Related Terms:** View a list of terms semantically similar to the currently selected ones, based on pre-calculated scores. Click related terms to add them to the main selection.
+*   **HPO Version Display:** Shows the HPO ontology version used during data preprocessing.
 *   **Multi-language UI:** Supports English (en), German (de), and Portuguese (pt). Easily extendable.
 *   **Download:** Export the selected terms list (HPO ID and Term Name) as a CSV file.
-*   **Client-Side:** Operates entirely in the browser after the initial data load, requiring no server backend for searching or selection.
-*   **Data Preprocessing:** Includes a Python script (`preprocess_hpo.py`) to prepare the necessary JSON data file from the official HPO JSON file, including similarity calculations using `pyhpo`.
+*   **Client-Side:** Operates entirely in the browser after the initial data load.
+*   **Data Preprocessing (`preprocess_hpo.py`):**
+    *   **Automatic Data Download:** Downloads necessary HPO master files (`hp.json`, `hp.obo`, `phenotype.hpoa`, etc.) from official PURLs to a local directory. Ensures all required files for `pyhpo` are present and version-consistent.
+    *   **Consistent Ontology Initialization:** Initializes `pyhpo` using the directory containing the downloaded master files.
+    *   Handles potential PURL identifiers (e.g., `http://.../HP_XXXXXXX`) in the JSON by converting them to the short format (`HP:XXXXXXX`).
+    *   Calculates term similarities using `pyhpo`.
+    *   Includes the HPO version (read from the downloaded `.obo` file) in the output JSON.
 
 ## Technology Stack
 
 *   **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+)
 *   **Preprocessing:** Python 3
-*   **Key Python Libraries:** `pyhpo`, `tqdm`
+*   **Key Python Libraries:** `pyhpo`, `tqdm`, `requests`
 *   **Data Format:** JSON
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
-
 1.  **Python 3:** Version 3.7 or higher recommended.
-2.  **pip:** Python package installer (usually comes with Python).
+2.  **pip:** Python package installer.
 3.  **Web Browser:** A modern web browser (e.g., Chrome, Firefox, Edge, Safari).
-4.  **HPO JSON File:** You need the `hp.json` file from the Human Phenotype Ontology. You can usually download it from:
-    *   [HPO Website Downloads](https://hpo.jax.org/app/download/ontology)
-    *   [OBO Foundry](http://purl.obolibrary.org/obo/hp.json)
 
 ## Setup and Installation
 
 1.  **Clone the Repository (or Download Files):**
     ```bash
-    git clone <your-repository-url>
-    cd <repository-directory>
+    git clone https://github.com/hmartiniano/phenoselect.git
+    cd phenoselect
     ```
-    Or download the `index.html`, `style.css`, `script.js`, and `preprocess_hpo.py` files into a single directory.
+    Or download `index.html`, `style.css`, `script.js`, and `preprocess_hpo.py` into a single directory.
 
 2.  **Install Python Dependencies:**
-    Navigate to the project directory in your terminal and install the required Python libraries for preprocessing:
+    Navigate to the project directory in your terminal and install the required Python libraries:
     ```bash
     pip install pyhpo tqdm requests
     ```
-    *(Note: `requests` is often used internally by `pyhpo` for fetching data if needed).*
 
-3.  **Download `hp.json`:**
-    Place the downloaded `hp.json` file either in the project directory or note its location.
-
-4.  **Run the Preprocessing Script:**
-    This step generates the `hpo_data.json` file required by the web application. It reads the `hp.json` file, filters terms, calculates similarities, and saves the result.
+3.  **Run the Preprocessing Script:**
+    This command will first download the necessary HPO master files (including `hp.json`, `hp.obo`, `phenotype.hpoa`) corresponding to the *latest official release* (as defined by the PURLs) into the `--data-dir` (defaulting to `./hpo_master_data/`) if they don't exist. It then initializes `pyhpo` using these downloaded files, processes the downloaded `hp.json`, calculates similarities, and saves the result to the specified output file (`hpo_data.json` by default).
     ```bash
-    python preprocess_hpo.py /path/to/your/hp.json -o hpo_data.json
+    python preprocess_hpo.py -o hpo_data.json
     ```
-    *   Replace `/path/to/your/hp.json` with the actual path to the file you downloaded.
-    *   The `-o hpo_data.json` argument ensures the output file is named correctly for the `script.js` to find it (assuming it's in the same directory as `index.html`).
+    *   The script no longer takes an input file path as a positional argument; it uses the `hp.json` downloaded into the data directory.
+    *   `-o hpo_data.json`: Specifies the name for the final processed output file (required by the web app).
 
-    **Optional Arguments for Preprocessing:**
-    *   `-t <threshold>`: Set the minimum similarity score threshold for storing related terms (e.g., `-t 0.5`). Default is 0.4. Higher values reduce file size but show fewer related terms.
-    *   `-m <max_terms>`: Set the maximum number of similar terms to store per HPO term (e.g., `-m 20`). Default is 10. Higher values increase file size but provide more potential related terms.
+    **Optional Arguments:**
+    *   `--data-dir <directory_path>`: Specify a different directory to store/find the downloaded HPO master files (default: `./hpo_master_data/`).
+    *   `--force-download`: Add this flag to force redownloading of all master files, even if they already exist in the data directory. Useful for updating to the latest official HPO data.
+    *   `-t <threshold>`: Minimum similarity score (default: 0.4).
+    *   `-m <max_terms>`: Max similar terms stored per term (default: 10).
 
-    **Warning:** The preprocessing step can take a significant amount of time (minutes to potentially hours) depending on your computer's speed and the size of the HPO file, as it involves numerous similarity calculations. The script uses `tqdm` to display progress bars.
+    **Note:** The first time you run the script, it will download several files from the official HPO PURLs, which may take a moment depending on your internet connection. Subsequent runs will use the existing files unless `--force-download` is used. The similarity calculation step can still take significant time (minutes to hours depending on the CPU).
 
-5.  **Verify Output:**
-    Ensure that the `hpo_data.json` file has been successfully created in the same directory as `index.html`.
+4.  **Verify Output:**
+    *   Ensure the output file (e.g., `hpo_data.json`) has been successfully created in the project directory.
+    *   Check the data directory (e.g., `./hpo_master_data/`) for the downloaded HPO files (`hp.json`, `hp.obo`, `phenotype.hpoa`, etc.).
 
 ## Usage
 
-1.  **Open the Application:** Open the `index.html` file in your web browser.
-2.  **Wait for Data Load:** A "Loading HPO data..." message will appear. Wait until it changes to "HPO data loaded successfully."
+1.  **Open Application:** Open the `index.html` file in your web browser.
+2.  **Wait for Data Load:** A "Loading HPO data..." message will appear. Wait until it changes to "HPO data loaded successfully." The HPO version used during preprocessing will appear at the top.
 3.  **Search:** Enter phenotype terms (at least 2 characters) into the search box and click "Search" or press Enter.
 4.  **Select Terms:** Click on terms in the "Search Results" panel to add them to the "Selected Terms" list.
 5.  **View Related Terms:** As you add terms to the selection, the "Related Terms" panel will update automatically, showing terms similar to your selection (that are not already selected). Scores indicate the calculated similarity.
 6.  **Add Related Terms:** Click on a term in the "Related Terms" panel to add it directly to your "Selected Terms" list.
-7.  **Remove Terms:** Click the 'X' button next to a term in the "Selected Terms" list to remove it. The "Related Terms" panel will update accordingly.
-8.  **Change Language:** Use the language dropdown in the top-right corner to change the UI language.
-9.  **Download List:** Click the "Download List (CSV)" button below the "Selected Terms" list to save your selection as a CSV file.
+7.  **Remove Terms:** Click the 'X' button next to a term in the "Selected Terms" list to remove it.
+8.  **Change Language:** Use the language dropdown in the top-right corner.
+9.  **Download List:** Click the "Download List (CSV)" button below the "Selected Terms" list to save your selection.
 
 ## File Structure
 
@@ -90,21 +87,26 @@ Before you begin, ensure you have the following installed:
 ├── index.html          # Main HTML structure
 ├── style.css           # CSS styling rules
 ├── script.js           # JavaScript application logic
-├── preprocess_hpo.py   # Python script for data preprocessing
-├── hpo_data.json       # (Generated) Processed HPO data with similarities
+├── preprocess_hpo.py   # Python script for data download & preprocessing
+├── hpo_data.json       # (Generated) Processed HPO data {version, nodes}
+├── hpo_master_data/    # (Generated by script) Directory containing downloaded files
+│   ├── hp.json         # Downloaded HPO structure file
+│   ├── hp.obo          # Downloaded HPO ontology file
+│   ├── phenotype.hpoa
+│   └── ... (other downloaded files)
 └── README.md           # This file
 ```
 
 ## Customization
 
-*   **Related Terms:** Adjust the `-t` (threshold) and `-m` (max similar) arguments when running `preprocess_hpo.py` to control the related terms included in `hpo_data.json`.
-*   **UI Languages:** Add more languages by:
-    1.  Adding a new language key and translations to the `uiStrings` object in `script.js`.
-    2.  Adding a corresponding `<option>` to the `#lang-selector` dropdown in `index.html`.
-*   **Styling:** Modify `style.css` to change the visual appearance.
+*   **Related Terms:** Adjust `-t` (threshold) and `-m` (max similar) arguments when running `preprocess_hpo.py`.
+*   **UI Languages:** Add more languages by modifying the `uiStrings` object in `script.js` and adding an `<option>` to the `#lang-selector` dropdown in `index.html`.
+*   **Styling:** Modify `style.css`.
+*   **Data Directory:** Change the default download/storage location for HPO files using the `--data-dir` argument during preprocessing.
 
 ## License
 
+This project is licensed under the **GNU General Public License v3.0**.
 
-This project is licensed under the MIT License - see the LICENSE.md file for details.
-```
+The full text of the license can be found in the `LICENSE` file in this repository (if added) or online at:
+[https://www.gnu.org/licenses/gpl-3.0.html](https://www.gnu.org/licenses/gpl-3.0.html)

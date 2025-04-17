@@ -17,15 +17,22 @@
 
     <!-- Main content area (hidden initially) -->
     <div id="main-content" style="display: none;">
-        <!-- Language selector for UI -->
-        <div style="text-align: right; margin-bottom: 10px;">
-             <label for="lang-selector">UI Language:</label>
-             <select id="lang-selector">
-                 <option value="en">English</option>
-                 <option value="de">Deutsch</option>
-                 <option value="pt">Português</option>
-                 <!-- Add more UI languages here -->
-             </select>
+        <!-- Top Bar: Language Selector and Version Info -->
+        <div class="top-bar">
+             <!-- Version Info -->
+             <div id="version-info">
+                 <span data-translate="hpo_version_label">HPO Version:</span>
+                 <span id="hpo-version-display">Loading...</span>
+             </div>
+             <!-- Language selector -->
+             <div class="lang-selector-container">
+                 <label for="lang-selector">UI Language:</label>
+                 <select id="lang-selector">
+                     <option value="en">English</option>
+                     <option value="de">Deutsch</option>
+                     <option value="pt">Português</option>
+                 </select>
+             </div>
          </div>
 
         <h1>HPO Phenotype Selector</h1>
@@ -55,7 +62,7 @@
                  <button id="download-button" disabled data-translate="download_button">Download List (CSV)</button>
             </div>
 
-            <!-- Right Panel: Related Terms (NEW) -->
+            <!-- Right Panel: Related Terms -->
             <div class="panel related-panel">
                 <h2 data-translate="related_heading">Related Terms</h2>
                 <div id="related-list-container">
@@ -71,5 +78,13 @@
     </div> <!-- End #main-content -->
 
     <script src="script.js"></script>
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            <a href="https://github.com/hmartiniano/phenoselect" target="_blank" rel="noopener noreferrer">View Source on GitHub</a> | Licensed under GPLv3
+        </p>
+    </footer>
+
 </body>
 </html>

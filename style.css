@@ -202,7 +202,6 @@ button:disabled {
 }
 
 
-/* ... (rest of the styles like .remove-btn, .placeholder-text, etc.) ... */
 
 /* Media query adjustment if needed */
 @media (max-width: 900px) { /* Adjust breakpoint if panels wrap too early */
@@ -216,4 +215,40 @@ button:disabled {
          height: 200px; /* Reduce height on smaller screens */
      }
 
+}
+
+/* Footer Styling */
+footer {
+    margin-top: 40px; /* Add space above the footer */
+    padding: 15px 0; /* Add vertical padding */
+    text-align: center; /* Center the content */
+    font-size: 0.85em; /* Slightly smaller font size */
+    color: #666; /* Grey text color */
+    border-top: 1px solid #ddd; /* Separator line */
+}
+
+footer p {
+    margin: 0; /* Remove default paragraph margin */
+}
+
+footer a {
+    color: #0056b3; /* Use a consistent link color */
+    text-decoration: none; /* Remove underline */
+}
+
+footer a:hover {
+    text-decoration: underline; /* Underline on hover */
+}
+
+/* Media query adjustment if needed */
+@media (max-width: 900px) { /* Adjust breakpoint if panels wrap too early */
+    .container {
+        flex-direction: column; /* Stack panels vertically */
+    }
+    .panel {
+        min-width: 100%; /* Take full width when stacked */
+    }
+     #results-area, #selected-list-container, #related-list-container {
+         height: 200px; /* Reduce height on smaller screens */
+     }
 }
