@@ -9,19 +9,22 @@
     <!-- Custom CSS (Minimal Overrides) -->
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Simple style for fixed height scrollable list groups */
+        /* Minimal necessary styles */
         .list-scrollable { max-height: 300px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: var(--bs-border-radius); padding: 0; margin-bottom: 1rem; }
         .list-scrollable .list-group-item { border-left: none; border-right: none; border-radius: 0; }
         .list-scrollable .list-group-item:first-child { border-top: none; }
         .list-scrollable .list-group-item:last-child { border-bottom: none; }
         #search-indicator { vertical-align: middle; }
         body { display: flex; flex-direction: column; min-height: 100vh; }
-        .container-fluid { flex: 1; }
-        footer { line-height: 1.2; } /* Adjust footer line height slightly */
-        #hpo-version-display { font-weight: bold; margin-left: 5px; } /* Style for version span */
+        .container-fluid.main-content-container { flex: 1; } /* Use a specific class */
+        footer { line-height: 1.2; }
+        #hpo-version-display { font-weight: bold; margin-left: 5px; }
+        /* Ensure cards stretch */
+         .card.h-100 { display: flex; flex-direction: column; }
+         .card-body.d-flex { flex-grow: 1; } /* Make card body grow */
     </style>
 </head>
-<body class="d-flex flex-column"> <!-- Use flex column for footer -->
+<body class="d-flex flex-column">
 
     <!-- Loading Message Area -->
     <div id="loading-area" class="alert alert-secondary text-center m-3" role="alert">
@@ -31,12 +34,12 @@
     </div>
 
     <!-- Main Content Area (Hidden Initially) -->
-    <div id="main-content" class="container-fluid flex-grow-1" style="display: none;">
+    <!-- Added specific class 'main-content-container' -->
+    <div id="main-content" class="container-fluid main-content-container flex-grow-1" style="display: none;">
 
         <!-- Top Row: Language Selector ONLY -->
         <div class="row mb-3 align-items-center">
-             <!-- REMOVED Version Info Div -->
-            <div class="col-12 text-md-end"> <!-- Adjusted column span -->
+            <div class="col-12 text-md-end">
                  <label for="lang-selector" class="form-label small me-2">UI Language:</label>
                  <select id="lang-selector" class="form-select form-select-sm d-inline-block w-auto">
                      <option value="en">English</option>
@@ -50,41 +53,69 @@
 
         <!-- Main Row: Panels -->
         <div class="row g-4">
+
             <!-- Left Panel: Search and Results -->
             <div class="col-lg-4">
-                <div class="card h-100">
-                     {/* Card content remains the same */}
-                     <div class="card-header"><h2 class="h5 mb-0" data-translate="search_heading">Search Phenotypes</h2></div>
-                     <div class="card-body d-flex flex-column">
-                         <div class="input-group mb-3">
-                             <input type="text" id="search-input" class="form-control" placeholder="Enter phenotype..." data-translate-placeholder="search_placeholder" disabled>
-                             <button id="search-button" class="btn btn-primary" type="button" data-translate="search_button" disabled>Search</button>
-                             <span id="search-indicator" class="input-group-text d-none"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div></span>
-                         </div>
-                         <div id="results-list-container" class="list-scrollable flex-grow-1"><div class="list-group list-group-flush" id="results-list"><div class="list-group-item text-muted text-center p-5" data-translate="results_placeholder">Search results will appear here.</div></div></div>
+                <div class="card h-100"> {/* h-100 ensures cards take full height of row */}
+                    <div class="card-header">
+                        <h2 class="h5 mb-0" data-translate="search_heading">Search Phenotypes</h2>
+                    </div>
+                    <div class="card-body d-flex flex-column"> {/* Flex column for content inside body */}
+                        <div class="input-group mb-3">
+                            <input type="text" id="search-input" class="form-control" placeholder="Enter phenotype..." data-translate-placeholder="search_placeholder" disabled>
+                            <button id="search-button" class="btn btn-primary" type="button" data-translate="search_button" disabled>Search</button>
+                            <span id="search-indicator" class="input-group-text d-none">
+                                <div class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </span>
+                        </div>
+                        {/* Scrollable container takes remaining space */}
+                        <div id="results-list-container" class="list-scrollable flex-grow-1">
+                             <div class="list-group list-group-flush" id="results-list">
+                                 <div class="list-group-item text-muted text-center p-5 placeholder-item" data-translate="results_placeholder">Search results will appear here.</div>
+                             </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            {/* Middle Panel: Selected Terms (content remains same) */}
+
+            <!-- Middle Panel: Selected Terms -->
             <div class="col-lg-4">
                 <div class="card h-100">
-                    <div class="card-header"><h2 class="h5 mb-0" data-translate="selected_heading">Selected Terms</h2></div>
+                    <div class="card-header">
+                        <h2 class="h5 mb-0" data-translate="selected_heading">Selected Terms</h2>
+                    </div>
                     <div class="card-body d-flex flex-column">
-                        <div id="selected-list-container" class="list-scrollable flex-grow-1"><ul class="list-group list-group-flush" id="selected-list"><li class="list-group-item text-muted text-center p-5" data-translate="selected_placeholder">No terms selected yet.</li></ul></div>
+                        <div id="selected-list-container" class="list-scrollable flex-grow-1">
+                            <ul class="list-group list-group-flush" id="selected-list">
+                                <li class="list-group-item text-muted text-center p-5 placeholder-item" data-translate="selected_placeholder">No terms selected yet.</li>
+                            </ul>
+                        </div>
+                        {/* Button pushed to bottom */}
                         <button id="download-button" class="btn btn-secondary mt-auto" disabled data-translate="download_button">Download List (CSV)</button>
                     </div>
                 </div>
             </div>
-            {/* Right Panel: Related Terms (content remains same) */}
+
+            <!-- Right Panel: Related Terms -->
             <div class="col-lg-4">
                  <div class="card h-100">
-                    <div class="card-header"><h2 class="h5 mb-0" data-translate="related_heading">Related Terms</h2></div>
+                    <div class="card-header">
+                        <h2 class="h5 mb-0" data-translate="related_heading">Related Terms</h2>
+                    </div>
                     <div class="card-body d-flex flex-column">
-                         <div id="related-list-container" class="list-scrollable flex-grow-1"><ul class="list-group list-group-flush" id="related-list"><li class="list-group-item text-muted text-center p-5" data-translate="related_placeholder">Select terms to see related ones.</li></ul></div>
-                        <p class="text-muted small text-center mt-auto" data-translate="related_info">Click on a related term to add it to your selection.</p>
+                         <div id="related-list-container" class="list-scrollable flex-grow-1">
+                            <ul class="list-group list-group-flush" id="related-list">
+                                <li class="list-group-item text-muted text-center p-5 placeholder-item" data-translate="related_placeholder">Select terms to see related ones.</li>
+                            </ul>
+                         </div>
+                         {/* Text pushed to bottom */}
+                        <p class="text-muted small text-center mt-auto mb-0" data-translate="related_info">Click on a related term to add it to your selection.</p>
                     </div>
                  </div>
             </div>
+
         </div> <!-- End .row (Panels) -->
     </div> <!-- End #main-content -->
 
@@ -94,7 +125,7 @@
             <a href="https://github.com/hmartiniano/phenoselect" target="_blank" rel="noopener noreferrer" class="text-decoration-none">View Source on GitHub</a> |
             Licensed under GPLv3 |
             <span data-translate="hpo_version_label">HPO Version:</span>
-            <span id="hpo-version-display">Loading...</span> {/* MOVED Version Display Here */}
+            <span id="hpo-version-display">Loading...</span>
         </p>
     </footer>
 
