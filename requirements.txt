@@ -1,2 +1,3 @@
 tqdm
-pyhpo
+requests
+hpo3
